@@ -41,17 +41,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 - &'#
-PY
-          from pathlib import Path
-          source = Path("app/src/main/cpp/main.cpp")
-          code = source.read_text()
-          old = "DrawRectangleRoundedLines(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));"
-          new = "DrawRectangleRoundedLinesEx(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));"
-          count = code.count(old)
-          if count != 1:
-              raise SystemExit(f"Expected exactly one outdated Raylib call, found {count}")
-          source.write_text(code.replace(old, new))
+          grep -q 'DrawRectangleRoundedLines(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));' app/src/main/cpp/main.cpp
+          sed -i 's/DrawRectangleRoundedLines(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));/DrawRectangleRoundedLinesEx(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));/' app/src/main/cpp/main.cpp
+          grep -q 'DrawRectangleRoundedLinesEx(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));' app/src/main/cpp/main.cpp
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
