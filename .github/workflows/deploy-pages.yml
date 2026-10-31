@@ -1,0 +1,37 @@
+name: Deploy Farm Market Web Game
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'FarmMarket_WebSource.zip'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract web game
+        run: |
+          set -e
+          test -s FarmMarket_WebSource.zip
+          unzip -t FarmMarket_WebSource.zip
+          mkdir -p web-dist
+          unzip -oq FarmMarket_WebSource.zip -d web-dist
+          test -s web-dist/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web-dist
+      - uses: actions/deploy-pages@v4
+        id: deployment
