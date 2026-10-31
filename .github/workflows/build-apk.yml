@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'FarmMarketAndroidSource_V2.zip'
       - 'FarmMarketAndroidSource.zip'
       - 'FarmMarketAndroidSource_DirectDownload.zip'
       - '.github/workflows/build-apk.yml'
@@ -23,7 +24,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -s FarmMarketAndroidSource.zip ]]; then
+          if [[ -s FarmMarketAndroidSource_V2.zip ]]; then
+            SOURCE_ZIP="FarmMarketAndroidSource_V2.zip"
+          elif [[ -s FarmMarketAndroidSource.zip ]]; then
             SOURCE_ZIP="FarmMarketAndroidSource.zip"
           elif [[ -s FarmMarketAndroidSource_DirectDownload.zip ]]; then
             SOURCE_ZIP="FarmMarketAndroidSource_DirectDownload.zip"
@@ -41,8 +44,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'DrawRectangleRoundedLines(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));' app/src/main/cpp/main.cpp
-          sed -i 's/DrawRectangleRoundedLines(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));/DrawRectangleRoundedLinesEx(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));/' app/src/main/cpp/main.cpp
+          if grep -q 'DrawRectangleRoundedLines(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));' app/src/main/cpp/main.cpp; then
+            sed -i 's/DrawRectangleRoundedLines(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));/DrawRectangleRoundedLinesEx(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));/' app/src/main/cpp/main.cpp
+          fi
           grep -q 'DrawRectangleRoundedLinesEx(rect, 0.28f, 12, 2.0f, Fade(tint, 0.78f));' app/src/main/cpp/main.cpp
 
       - name: Set up Java 17
@@ -72,7 +76,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FarmMarketAndroid-debug-apk
+          name: FarmMarketAndroid-v1.1.0-debug
           path: farm_market_android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
