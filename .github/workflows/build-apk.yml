@@ -19,8 +19,9 @@ jobs:
 
       - name: Verify and extract source ZIP
         run: |
-          test -f FarmMarketAndroidSource.zip
-          unzip -t FarmMarketAndroid.zip 2>/dev/null || unzip -t FarmMarketAndroidSource.zip
+          set -e
+          test -s FarmMarketAndroidSource.zip
+          unzip -t FarmMarketAndroidSource.zip
           unzip -oq FarmMarketAndroidSource.zip -d .
 
       - name: Set up Java 17
@@ -37,10 +38,12 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses
+
       - name: Install Android build tools
         run: |
           sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973" "cmake;3.22.1"
-          yes | sdkmanager --licenses
 
       - name: Build debug APK
         working-directory: farm_market_android
